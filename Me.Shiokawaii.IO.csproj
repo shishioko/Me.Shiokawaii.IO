@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageTags>io, stream</PackageTags>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Title>$(AssemblyName)</Title>
+    <RootNamespace>Me.Shiokawaii.IO</RootNamespace>
+    <AssemblyName>Me.Shiokawaii.IO</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1.0</Version>
+    <Authors>shiokawaii</Authors>
+    <Description>Collection of IO and Network related classes</Description>
+    <Company>@shiokawaii</Company>
+  </PropertyGroup>
+
+</Project>
