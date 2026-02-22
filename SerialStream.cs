@@ -12,24 +12,17 @@ namespace Me.Shiokawaii.IO
 {
     public class SerialStream : IDisposable, IAsyncDisposable
     {
-        public bool KeepOpen = false;
-        public bool DisallowNull = false;
-        public bool DynamicPrefix = false;
-        public bool LongPrefix = false;
-        public bool LittleEndian = false;
-        public bool CheckSignature = false;
+        public bool AutoClose { get; init; } = false;
+        public bool DisallowNull { get; init; } = false;
+        public bool DynamicPrefix { get; init; } = false;
+        public bool LongPrefix { get; init; } = false;
+        public bool LittleEndian { get; init; } = false;
+        //public bool CheckSignature { get; init; } = false;
         private readonly Stream BaseStream;
         private bool Disposed = false;
-        public SerialStream(Stream baseStream, bool keepOpen, bool disallowNull = false, bool dynamicPrefix = false, bool longPrefix = false, bool littleEndian = false, bool checkSignature = false)
+        public SerialStream(Stream baseStream)
         {
             BaseStream = baseStream;
-            KeepOpen = keepOpen;
-            DisallowNull = disallowNull;
-            DynamicPrefix = dynamicPrefix;
-            LongPrefix = longPrefix;
-            LittleEndian = littleEndian;
-            CheckSignature = checkSignature;
-            if (checkSignature) throw new NotImplementedException();
         }
         public T Read<T>()
         {
@@ -835,13 +828,13 @@ namespace Me.Shiokawaii.IO
         {
             ObjectDisposedException.ThrowIf(Disposed, this);
             Disposed = true;
-            if (!KeepOpen) BaseStream.Dispose();
+            if (AutoClose) BaseStream.Dispose();
         }
         public async ValueTask DisposeAsync()
         {
             ObjectDisposedException.ThrowIf(Disposed, this);
             Disposed = true;
-            if (!KeepOpen) await BaseStream.DisposeAsync();
+            if (AutoClose) await BaseStream.DisposeAsync();
         }
     }
 }
