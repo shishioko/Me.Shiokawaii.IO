@@ -60,7 +60,7 @@ namespace Me.Shiokawaii.IO
         }
         public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            Contract.Requires(CanRead);
+            if (!CanRead) throw new InvalidOperationException($"Attempted to read readerless {nameof(ChannelStream)}!");
             ObjectDisposedException.ThrowIf(Disposed, this);
             if (LastRead.Length <= LastReadPosition)
             {
@@ -75,7 +75,7 @@ namespace Me.Shiokawaii.IO
         }
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            Contract.Requires(CanWrite);
+            if (!CanRead) throw new InvalidOperationException($"Attempted to write writerless {nameof(ChannelStream)}!");
             ObjectDisposedException.ThrowIf(Disposed, this);
             await Writer!.WriteAsync(buffer[offset..(offset+count)], cancellationToken);
         }
