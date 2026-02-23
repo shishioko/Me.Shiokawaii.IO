@@ -211,7 +211,6 @@ namespace Me.Shiokawaii.IO
                 }
                 return data;
             }
-            return;
             async Task<long> ReadLengthAsync(CancellationToken cancellationToken = default)
             {
                 if (DynamicPrefix)
