@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,6 @@ namespace Me.Shiokawaii.IO
     public class SerialStream : IDisposable, IAsyncDisposable
     {
         public bool AutoClose { get; init; } = false;
-        public bool DisallowNull { get; init; } = false;
         public bool DynamicPrefix { get; init; } = false;
         public bool LongPrefix { get; init; } = false;
         public bool LittleEndian { get; init; } = false;
@@ -32,15 +32,11 @@ namespace Me.Shiokawaii.IO
         {
             return ReadAsync(type).Result;
         }
-        public void Write(object? data)
-        {
-            WriteAsync(data).Wait();
-        }
         public void Write<T>(T data)
         {
             WriteAsync<T>(data).Wait();
         }
-        public void Write(Type? type, object? data)
+        public void Write(Type type, object? data)
         {
             WriteAsync(type, data).Wait();
         }
@@ -52,10 +48,16 @@ namespace Me.Shiokawaii.IO
         {
             ObjectDisposedException.ThrowIf(Disposed, this);
             cancellationToken.ThrowIfCancellationRequested();
-            if (type.IsPointer) throw new InvalidDataException();
+            if (type.IsPointer) throw new SerializationException("Attempted to deserialize pointer type!");
             if (type.IsClass)
             {
-                if (!DisallowNull || Nullable.GetUnderlyingType(type) is not null) if (!await ReadAsync<bool>(cancellationToken)) return null;
+                if (Nullable.GetUnderlyingType(type) is not null) if (!await ReadAsync<bool>(cancellationToken)) return null;
+            }
+            if (type.IsAssignableTo(typeof(ISerializable)))
+            {
+                ISerializable serializable = (ISerializable)RuntimeHelpers.GetUninitializedObject(type);
+                await serializable.DeserializeAsync(this, cancellationToken);
+                return serializable;
             }
             if (type.IsArray)
             {
@@ -188,7 +190,6 @@ namespace Me.Shiokawaii.IO
                 for (int i = 0; i < sizeof(decimal) / sizeof(int); i++) buffer[i] = await ReadAsync<int>(cancellationToken);
                 return new decimal(buffer);
             }
-
             else if (type == typeof(char))
             {
                 byte[] buffer = await ReadBufferAsync(sizeof(ushort), cancellationToken);
@@ -210,6 +211,7 @@ namespace Me.Shiokawaii.IO
                 }
                 return data;
             }
+            return;
             async Task<long> ReadLengthAsync(CancellationToken cancellationToken = default)
             {
                 if (DynamicPrefix)
@@ -245,33 +247,29 @@ namespace Me.Shiokawaii.IO
                 return buffer;
             }
         }
-        public async Task WriteAsync(object? data, CancellationToken cancellationToken = default)
-        {
-            await WriteAsync(data?.GetType(), data, cancellationToken);
-        }
         public async Task WriteAsync<T>(T data, CancellationToken cancellationToken = default)
         {
             await WriteAsync(typeof(T), data, cancellationToken);
         }
-        public async Task WriteAsync(Type? type, object? data, CancellationToken cancellationToken = default)
+        public async Task WriteAsync(Type type, object? data, CancellationToken cancellationToken = default)
         {
             ObjectDisposedException.ThrowIf(Disposed, this);
             cancellationToken.ThrowIfCancellationRequested();
-            if (type is null)
-            {
-                if (DisallowNull) throw new InvalidDataException();
-                await WriteAsync(false, cancellationToken);
-                return;
-            }
-            if (type.IsPointer) throw new InvalidDataException();
+            if (data is not null && !data.GetType().IsAssignableTo(type)) throw new SerializationException("Attempted to serialize data of mismatching type!");
+            if (type.IsPointer) throw new SerializationException("Attempted to serialize pointer type!");
             if (type.IsClass)
             {
-                bool set = data is not null;
-                if (!set && DisallowNull && Nullable.GetUnderlyingType(type) is null) throw new InvalidDataException();
-                if (!DisallowNull || Nullable.GetUnderlyingType(type) is not null) await WriteAsync(set, cancellationToken);
-                if (!set) return;
+                bool isNull = data is null;
+                if (isNull && Nullable.GetUnderlyingType(type) is null) throw new SerializationException("Attempted to serialize non-nullable type as null!");
+                if (Nullable.GetUnderlyingType(type) is not null) await WriteAsync(!isNull, cancellationToken);
+                if (isNull) return;
             }
-            if (!data!.GetType().IsSubclassOf(type) && data.GetType() != type) throw new InvalidDataException();
+            if (type.IsAssignableTo(typeof(ISerializable)))
+            {
+                ISerializable serializable = (data as ISerializable)!;
+                await serializable.SerializeAsync(this, cancellationToken);
+                return;
+            }
             if (type.IsArray)
             {
                 if (data is bool[] u1a)
@@ -424,7 +422,8 @@ namespace Me.Shiokawaii.IO
                     await WriteAsync(field.FieldType, field.GetValue(data), cancellationToken);
                 }
             }
-            async Task WriteLengthAsync(long length, CancellationToken cancellationToken)
+            return;
+            async Task WriteLengthAsync(long length, CancellationToken cancellationToken = default)
             {
                 if (!LongPrefix && length > int.MaxValue) throw new InvalidDataException();
                 if (DynamicPrefix)
