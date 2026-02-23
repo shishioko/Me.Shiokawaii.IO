@@ -8,15 +8,22 @@ namespace Me.Shiokawaii.IO
 {
     public class HostStream : IDisposable, IAsyncDisposable
     {
+        [Obsolete("Implementation currently not reliable.")]
         public readonly SerialStream Stream;
         internal readonly Dictionary<Guid, ClientStream> Clients = [];
         internal readonly SemaphoreSlim Sync = new(1, 1);
         internal readonly SemaphoreSlim WriteSync = new(1, 1);
         public event Func<ClientStream, bool, Task> OnOpen = (stream, own) => Task.CompletedTask;
         private bool Disposed = false;
-        public HostStream(Stream stream, bool keepOpen, bool littleEndian = false)
+        public HostStream(Stream stream, bool autoClose, bool littleEndian = false)
         {
-            Stream = new(stream, keepOpen, true, true, true, littleEndian);
+            Stream = new(stream)
+            {
+                AutoClose = autoClose,
+                DynamicPrefix = true,
+                LongPrefix = true,
+                LittleEndian = littleEndian,
+            };
         }
         public async Task ListenAsync(CancellationToken cancellationToken = default)
         {

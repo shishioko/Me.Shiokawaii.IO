@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Me.Shiokawaii.IO
 {
+    [Obsolete("Implementation currently not reliable.")]
     public class ClientStream : Stream
     {
         private readonly HostStream Host;
