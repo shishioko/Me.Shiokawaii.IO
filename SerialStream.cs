@@ -72,7 +72,7 @@ namespace Me.Shiokawaii.IO
                 }
                 if (type == typeof(sbyte[]))
                 {
-                    return MemoryMarshal.Cast<sbyte, bool>(await ReadAsync<sbyte[]>(cancellationToken)).ToArray();
+                    return MemoryMarshal.Cast<byte, sbyte>(await ReadAsync<byte[]>(cancellationToken)).ToArray();
                 }
                 else
                 {
