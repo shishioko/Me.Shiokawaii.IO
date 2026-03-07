@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Me.Shiokawaii.IO.Structs;
 
 namespace Me.Shiokawaii.IO
 {
@@ -215,22 +216,13 @@ namespace Me.Shiokawaii.IO
             {
                 if (DynamicPrefix)
                 {
-                    ulong value = 0x00;
-                    int position = 0;
-                    while (true)
-                    {
-                        ulong current = await ReadAsync<byte>(cancellationToken);
-                        value |= (current & 0x7F) << position;
-                        position += 7;
-                        if ((current & 0x80) == 0x00) break;
-                        if (position >= (LongPrefix ? sizeof(ulong) : sizeof(uint)) * 8) throw new InvalidDataException();
-                    }
-                    return (long)value;
+                    if (LongPrefix) return await ReadAsync<VarInt64>(cancellationToken);
+                    else return await ReadAsync<VarInt32>(cancellationToken);
                 }
                 else
                 {
-                    if (LongPrefix) return await ReadAsync<long>();
-                    else return await ReadAsync<int>();
+                    if (LongPrefix) return await ReadAsync<long>(cancellationToken);
+                    else return await ReadAsync<int>(cancellationToken);
                 }
             }
             async Task<byte[]> ReadBufferAsync(long length, CancellationToken cancellationToken = default)
@@ -427,19 +419,13 @@ namespace Me.Shiokawaii.IO
                 if (!LongPrefix && length > int.MaxValue) throw new InvalidDataException();
                 if (DynamicPrefix)
                 {
-                    ulong value = LongPrefix ? (ulong)length : (uint)length;
-                    do
-                    {
-                        ulong current = value & 0x7F;
-                        value >>= 7;
-                        await BaseStream.WriteAsync(new Memory<byte>([(byte)(current | (value != 0UL ? 0x80UL : 0x00UL))]), cancellationToken);
-                    }
-                    while (value != 0);
+                    if (LongPrefix) await WriteAsync<VarInt64>(length, cancellationToken);
+                    else await WriteAsync<VarInt32>((int)length, cancellationToken);
                 }
                 else
                 {
-                    if (LongPrefix) await WriteAsync(length, cancellationToken);
-                    else await WriteAsync((int)length, cancellationToken);
+                    if (LongPrefix) await WriteAsync<long>(length, cancellationToken);
+                    else await WriteAsync<int>((int)length, cancellationToken);
                 }
             }
         }
