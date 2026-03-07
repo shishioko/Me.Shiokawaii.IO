@@ -17,6 +17,7 @@
     <Company>@shiokawaii</Company>
     <PackageProjectUrl>https://github.com/shishioko/Me.Shiokawaii.IO</PackageProjectUrl>
     <RepositoryUrl>https://github.com/shishioko/Me.Shiokawaii.IO</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
 </Project>
