@@ -68,7 +68,7 @@ namespace Me.Shiokawaii.IO
                 }
                 if (type == typeof(byte[]))
                 {
-                    return await ReadBufferAsync(await ReadLengthAsync());
+                    return await readBufferAsync(await readLengthAsync());
                 }
                 if (type == typeof(sbyte[]))
                 {
@@ -82,7 +82,7 @@ namespace Me.Shiokawaii.IO
                     for (int i = 0; i < dimensions; i++)
                     {
                         indices[i] = 0;
-                        lengths[i] = await ReadLengthAsync();
+                        lengths[i] = await readLengthAsync();
                     }
                     Array array = Array.CreateInstance(type.GetElementType()!, lengths);
                     Type basetype = type.GetElementType()!;
@@ -109,13 +109,13 @@ namespace Me.Shiokawaii.IO
             }
             else if (type == typeof(nuint))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(ulong));
+                byte[] buffer = await readBufferAsync(sizeof(ulong));
                 if (LittleEndian) return (nuint)BinaryPrimitives.ReadUInt64LittleEndian(buffer);
                 else return (nuint)BinaryPrimitives.ReadUInt64BigEndian(buffer);
             }
             else if (type == typeof(nint))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(long));
+                byte[] buffer = await readBufferAsync(sizeof(long));
                 if (LittleEndian) return (nint)BinaryPrimitives.ReadInt64LittleEndian(buffer);
                 else return (nint)BinaryPrimitives.ReadInt64BigEndian(buffer);
             }
@@ -139,49 +139,49 @@ namespace Me.Shiokawaii.IO
             }
             else if (type == typeof(ushort))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(ushort));
+                byte[] buffer = await readBufferAsync(sizeof(ushort));
                 if (LittleEndian) return BinaryPrimitives.ReadUInt16LittleEndian(buffer);
                 else return BinaryPrimitives.ReadUInt16BigEndian(buffer);
             }
             else if (type == typeof(short))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(short));
+                byte[] buffer = await readBufferAsync(sizeof(short));
                 if (LittleEndian) return BinaryPrimitives.ReadInt16LittleEndian(buffer);
                 else return BinaryPrimitives.ReadInt16BigEndian(buffer);
             }
             else if (type == typeof(uint))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(uint));
+                byte[] buffer = await readBufferAsync(sizeof(uint));
                 if (LittleEndian) return BinaryPrimitives.ReadUInt32LittleEndian(buffer);
                 else return BinaryPrimitives.ReadUInt32BigEndian(buffer);
             }
             else if (type == typeof(int))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(int));
+                byte[] buffer = await readBufferAsync(sizeof(int));
                 if (LittleEndian) return BinaryPrimitives.ReadInt32LittleEndian(buffer);
                 else return BinaryPrimitives.ReadInt32BigEndian(buffer);
             }
             else if (type == typeof(ulong))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(ulong));
+                byte[] buffer = await readBufferAsync(sizeof(ulong));
                 if (LittleEndian) return BinaryPrimitives.ReadUInt64LittleEndian(buffer);
                 else return BinaryPrimitives.ReadUInt64BigEndian(buffer);
             }
             else if (type == typeof(long))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(long));
+                byte[] buffer = await readBufferAsync(sizeof(long));
                 if (LittleEndian) return BinaryPrimitives.ReadInt64LittleEndian(buffer);
                 else return BinaryPrimitives.ReadInt64BigEndian(buffer);
             }
             else if (type == typeof(float))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(float));
+                byte[] buffer = await readBufferAsync(sizeof(float));
                 if (LittleEndian) return BinaryPrimitives.ReadSingleLittleEndian(buffer);
                 else return BinaryPrimitives.ReadSingleBigEndian(buffer);
             }
             else if (type == typeof(double))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(double));
+                byte[] buffer = await readBufferAsync(sizeof(double));
                 if (LittleEndian) return BinaryPrimitives.ReadDoubleLittleEndian(buffer);
                 else return BinaryPrimitives.ReadDoubleBigEndian(buffer);
             }
@@ -193,13 +193,13 @@ namespace Me.Shiokawaii.IO
             }
             else if (type == typeof(char))
             {
-                byte[] buffer = await ReadBufferAsync(sizeof(ushort));
+                byte[] buffer = await readBufferAsync(sizeof(ushort));
                 if (LittleEndian) return BinaryPrimitives.ReadUInt16LittleEndian(buffer);
                 else return BinaryPrimitives.ReadUInt16BigEndian(buffer);
             }
             else if (type == typeof(string))
             {
-                return Encoding.Default.GetString(await ReadBufferAsync(await ReadLengthAsync()));
+                return Encoding.Default.GetString(await readBufferAsync(await readLengthAsync()));
             }
             else
             {
@@ -212,7 +212,7 @@ namespace Me.Shiokawaii.IO
                 }
                 return data;
             }
-            async Task<long> ReadLengthAsync()
+            async Task<long> readLengthAsync()
             {
                 if (DynamicPrefix)
                 {
@@ -225,7 +225,7 @@ namespace Me.Shiokawaii.IO
                     else return await ReadAsync<int>(cancellationToken);
                 }
             }
-            async Task<byte[]> ReadBufferAsync(long length)
+            async Task<byte[]> readBufferAsync(long length)
             {
                 byte[] buffer = new byte[length];
                 int position = 0;
@@ -265,17 +265,17 @@ namespace Me.Shiokawaii.IO
             {
                 if (data is bool[] u1a)
                 {
-                    await WriteLengthAsync(u1a.LongLength);
+                    await writeLengthAsync(u1a.LongLength);
                     await BaseStream.WriteAsync(new Memory<byte>(MemoryMarshal.AsBytes(new Span<bool>(u1a)).ToArray()), cancellationToken);
                 }
                 else if (data is byte[] u8a)
                 {
-                    await WriteLengthAsync(u8a.LongLength);
+                    await writeLengthAsync(u8a.LongLength);
                     await BaseStream.WriteAsync(u8a, cancellationToken);
                 }
                 else if (data is sbyte[] s8a)
                 {
-                    await WriteLengthAsync(s8a.LongLength);
+                    await writeLengthAsync(s8a.LongLength);
                     await BaseStream.WriteAsync(new Memory<byte>(MemoryMarshal.AsBytes(new Span<sbyte>(s8a)).ToArray()), cancellationToken);
                 }
                 else
@@ -288,7 +288,7 @@ namespace Me.Shiokawaii.IO
                     for (int i = 0; i < dimensions; i++)
                     {
                         indices[i] = 0;
-                        await WriteLengthAsync(lengths[i] = array.GetLongLength(i));
+                        await writeLengthAsync(lengths[i] = array.GetLongLength(i));
                         if (array.GetLowerBound(i) > 0) throw new InvalidDataException();
                     }
                     while (indices[0] < lengths[0])
@@ -401,7 +401,7 @@ namespace Me.Shiokawaii.IO
             else if (data is string tu16a)
             {
                 byte[] buffer = Encoding.Default.GetBytes(tu16a);
-                await WriteLengthAsync(buffer.LongLength);
+                await writeLengthAsync(buffer.LongLength);
                 await BaseStream.WriteAsync(buffer, cancellationToken);
             }
             else
@@ -414,7 +414,7 @@ namespace Me.Shiokawaii.IO
                 }
             }
             return;
-            async Task WriteLengthAsync(long length)
+            async Task writeLengthAsync(long length)
             {
                 if (!LongPrefix && length > int.MaxValue) throw new InvalidDataException();
                 if (DynamicPrefix)
