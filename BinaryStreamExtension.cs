@@ -12,6 +12,19 @@ namespace Me.Shiokawaii.IO
 {
     public static class BinaryStreamExtension
     {
+        public static async Task<byte[]> ReadU8AAsync(this Stream stream, CancellationToken cancellationToken = default)
+        {
+            using MemoryStream ms = new();
+            await stream.CopyToAsync(ms, cancellationToken);
+            return ms.ToArray();
+        }
+        public static byte[] ReadU8A(this Stream stream)
+        {
+            using MemoryStream ms = new();
+            stream.CopyTo(ms);
+            return ms.ToArray();
+        }
+        
         public static async Task<byte[]> ReadU8AAsync(this Stream stream, int size, CancellationToken cancellationToken = default)
         {
             byte[] data = new byte[size];
