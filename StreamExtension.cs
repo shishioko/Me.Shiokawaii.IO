@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Me.Shiokawaii.IO
 {
-    public static class BinaryStreamExtension
+    public static class StreamExtension
     {
         extension(Stream stream)
         {
