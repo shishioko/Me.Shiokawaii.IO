@@ -49,7 +49,7 @@ namespace Me.Shiokawaii.IO
             }
             return data;
         }
-        public static async Task WriteU8AAsync(this Stream stream, byte[] data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteU8AAsync(this Stream stream, byte[] data, CancellationToken cancellationToken = default)
         {
             await stream.WriteAsync(data, cancellationToken);
         }
@@ -66,7 +66,7 @@ namespace Me.Shiokawaii.IO
         {
             return stream.ReadU8A(1)[0];
         }
-        public static async Task WriteU8Async(this Stream stream, byte data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteU8Async(this Stream stream, byte data, CancellationToken cancellationToken = default)
         {
             await stream.WriteAsync(new byte[] { data }, cancellationToken);
         }
@@ -83,7 +83,7 @@ namespace Me.Shiokawaii.IO
         {
             return (sbyte)(stream.ReadU8A(1))[0];
         }
-        public static async Task WriteS8Async(this Stream stream, sbyte data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteS8Async(this Stream stream, sbyte data, CancellationToken cancellationToken = default)
         {
             await stream.WriteAsync(MemoryMarshal.AsBytes<sbyte>(new sbyte[] { data }).ToArray(), cancellationToken);
         }
@@ -102,7 +102,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(ushort));
             return BinaryPrimitives.ReadUInt16BigEndian(buffer);
         }
-        public static async Task WriteU16Async(this Stream stream, ushort data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteU16Async(this Stream stream, ushort data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(ushort)];
             BinaryPrimitives.WriteUInt16BigEndian(buffer, data);
@@ -125,7 +125,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(short));
             return BinaryPrimitives.ReadInt16BigEndian(buffer);
         }
-        public static async Task WriteS16Async(this Stream stream, short data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteS16Async(this Stream stream, short data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(short)];
             BinaryPrimitives.WriteInt16BigEndian(buffer, data);
@@ -148,7 +148,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(uint));
             return BinaryPrimitives.ReadUInt32BigEndian(buffer);
         }
-        public static async Task WriteU32Async(this Stream stream, uint data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteU32Async(this Stream stream, uint data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(uint)];
             BinaryPrimitives.WriteUInt32BigEndian(buffer, data);
@@ -171,7 +171,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(int));
             return BinaryPrimitives.ReadInt32BigEndian(buffer);
         }
-        public static async Task WriteS32Async(this Stream stream, int data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteS32Async(this Stream stream, int data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(int)];
             BinaryPrimitives.WriteInt32BigEndian(buffer, data);
@@ -194,7 +194,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(ulong));
             return BinaryPrimitives.ReadUInt64BigEndian(buffer);
         }
-        public static async Task WriteU64Async(this Stream stream, ulong data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteU64Async(this Stream stream, ulong data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(ulong)];
             BinaryPrimitives.WriteUInt64BigEndian(buffer, data);
@@ -217,7 +217,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(long));
             return BinaryPrimitives.ReadInt64BigEndian(buffer);
         }
-        public static async Task WriteS64Async(this Stream stream, long data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteS64Async(this Stream stream, long data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(long)];
             BinaryPrimitives.WriteInt64BigEndian(buffer, data);
@@ -240,7 +240,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(float));
             return BinaryPrimitives.ReadSingleBigEndian(buffer);
         }
-        public static async Task WriteF32Async(this Stream stream, float data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteF32Async(this Stream stream, float data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(float)];
             BinaryPrimitives.WriteSingleBigEndian(buffer, data);
@@ -263,7 +263,7 @@ namespace Me.Shiokawaii.IO
             byte[] buffer = stream.ReadU8A(sizeof(double));
             return BinaryPrimitives.ReadDoubleBigEndian(buffer);
         }
-        public static async Task WriteF64Async(this Stream stream, double data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteF64Async(this Stream stream, double data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = new byte[sizeof(double)];
             BinaryPrimitives.WriteDoubleBigEndian(buffer, data);
@@ -302,7 +302,7 @@ namespace Me.Shiokawaii.IO
                 if (position >= sizeof(uint) * 8) throw new ProtocolViolationException();
             }
         }
-        public static async Task<int> WriteU32VAsync(this Stream stream, uint data, CancellationToken cancellationToken = default)
+        public static async ValueTask<int> WriteU32VAsync(this Stream stream, uint data, CancellationToken cancellationToken = default)
         {
             int size = 0;
             do
@@ -341,7 +341,7 @@ namespace Me.Shiokawaii.IO
         {
             return (int)stream.ReadU32V();
         }
-        public static async Task<int> WriteS32VAsync(this Stream stream, int data, CancellationToken cancellationToken = default)
+        public static async ValueTask<int> WriteS32VAsync(this Stream stream, int data, CancellationToken cancellationToken = default)
         {
             return await stream.WriteU32VAsync((uint)data, cancellationToken);
         }
@@ -376,7 +376,7 @@ namespace Me.Shiokawaii.IO
                 if (position >= 64) throw new ProtocolViolationException();
             }
         }
-        public static async Task<int> WriteU64VAsync(this Stream stream, ulong data, CancellationToken cancellationToken = default)
+        public static async ValueTask<int> WriteU64VAsync(this Stream stream, ulong data, CancellationToken cancellationToken = default)
         {
             int size = 0;
             do
@@ -415,7 +415,7 @@ namespace Me.Shiokawaii.IO
         {
             return (long)stream.ReadU64V();
         }
-        public static async Task<int> WriteS64VAsync(this Stream stream, long data, CancellationToken cancellationToken = default)
+        public static async ValueTask<int> WriteS64VAsync(this Stream stream, long data, CancellationToken cancellationToken = default)
         {
             return await stream.WriteU64VAsync((ulong)data, cancellationToken);
         }
@@ -432,7 +432,7 @@ namespace Me.Shiokawaii.IO
         {
             return (stream.ReadU8()) != 0;
         }
-        public static async Task WriteBoolAsync(this Stream stream, bool data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteBoolAsync(this Stream stream, bool data, CancellationToken cancellationToken = default)
         {
             await stream.WriteAsync(MemoryMarshal.AsBytes<bool>(new bool[] { data }).ToArray(), cancellationToken);
         }
@@ -447,7 +447,7 @@ namespace Me.Shiokawaii.IO
             if (BitConverter.IsLittleEndian) buffer = [buffer[3], buffer[2], buffer[1], buffer[0], buffer[5], buffer[4], buffer[7], buffer[6], buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]];
             return MemoryMarshal.Cast<byte, Guid>(buffer)[0];
         }
-        public static async Task WriteGuidAsync(this Stream stream, Guid data, CancellationToken cancellationToken = default)
+        public static async ValueTask WriteGuidAsync(this Stream stream, Guid data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = MemoryMarshal.AsBytes([data]).ToArray();
             if (!BitConverter.IsLittleEndian)
