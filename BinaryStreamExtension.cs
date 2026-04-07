@@ -447,6 +447,12 @@ namespace Me.Shiokawaii.IO
             if (BitConverter.IsLittleEndian) buffer = [buffer[3], buffer[2], buffer[1], buffer[0], buffer[5], buffer[4], buffer[7], buffer[6], buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]];
             return MemoryMarshal.Cast<byte, Guid>(buffer)[0];
         }
+        public static Guid ReadGuid(this Stream stream)
+        {
+            byte[] buffer = stream.ReadU8A(16);
+            if (BitConverter.IsLittleEndian) buffer = [buffer[3], buffer[2], buffer[1], buffer[0], buffer[5], buffer[4], buffer[7], buffer[6], buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]];
+            return MemoryMarshal.Cast<byte, Guid>(buffer)[0];
+        }
         public static async ValueTask WriteGuidAsync(this Stream stream, Guid data, CancellationToken cancellationToken = default)
         {
             byte[] buffer = MemoryMarshal.AsBytes([data]).ToArray();
@@ -456,12 +462,6 @@ namespace Me.Shiokawaii.IO
                 return;
             }
             await stream.WriteAsync(new byte[] { buffer[3], buffer[2], buffer[1], buffer[0], buffer[5], buffer[4], buffer[7], buffer[6], buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15] }, cancellationToken);
-        }
-        public static Guid ReadGuid(this Stream stream)
-        {
-            byte[] buffer = stream.ReadU8A(16);
-            if (BitConverter.IsLittleEndian) buffer = [buffer[3], buffer[2], buffer[1], buffer[0], buffer[5], buffer[4], buffer[7], buffer[6], buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]];
-            return MemoryMarshal.Cast<byte, Guid>(buffer)[0];
         }
         public static void WriteGuid(this Stream stream, Guid data)
         {
