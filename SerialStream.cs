@@ -85,7 +85,7 @@ namespace Me.Shiokawaii.IO
                         lengths[i] = await readLengthAsync();
                     }
                     Array array = Array.CreateInstance(type.GetElementType()!, lengths);
-                    Type basetype = type.GetElementType()!;
+                    Type baseType = type.GetElementType()!;
                     while (indices[0] < lengths[0])
                     {
                         for (int i = dimensions - 1; i >= 0; i++)
@@ -97,7 +97,7 @@ namespace Me.Shiokawaii.IO
                             continue;
                         }
                         if (indices[0] < lengths[0]) break;
-                        array.SetValue(await ReadAsync(basetype, cancellationToken), indices);
+                        array.SetValue(await ReadAsync(baseType, cancellationToken), indices);
                         indices[dimensions - 1]++;
                     }
                     return array;
@@ -281,7 +281,7 @@ namespace Me.Shiokawaii.IO
                 else
                 {
                     Array array = (data as Array)!;
-                    Type basetype = type.GetElementType()!;
+                    Type baseType = type.GetElementType()!;
                     int dimensions = array.Rank;
                     long[] indices = new long[dimensions];
                     long[] lengths = new long[dimensions];
@@ -303,15 +303,15 @@ namespace Me.Shiokawaii.IO
                             continue;
                         }
                         if (indices[0] < lengths[0]) break;
-                        await WriteAsync(basetype, array.GetValue(indices), cancellationToken);
+                        await WriteAsync(baseType, array.GetValue(indices), cancellationToken);
                         indices[dimensions - 1]++;
                     }
                 }
             }
             else if (type.IsEnum)
             {
-                Type basetype = type.GetEnumUnderlyingType();
-                await WriteAsync(basetype, Convert.ChangeType(data, basetype), cancellationToken);
+                Type baseType = type.GetEnumUnderlyingType();
+                await WriteAsync(baseType, Convert.ChangeType(data, baseType), cancellationToken);
             }
             else if (data is nuint u0)
             {
