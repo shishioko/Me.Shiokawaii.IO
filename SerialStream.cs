@@ -391,16 +391,16 @@ namespace Me.Shiokawaii.IO
                 int[] buffer = decimal.GetBits(f128);
                 for (int i = 0; i < sizeof(decimal) / sizeof(int); i++) await WriteAsync(buffer[i], cancellationToken);
             }
-            else if (data is char tu16)
+            else if (data is char t16)
             {
                 byte[] buffer = new byte[sizeof(ushort)];
-                if (LittleEndian) BinaryPrimitives.WriteUInt16LittleEndian(buffer, tu16);
-                else BinaryPrimitives.WriteUInt16BigEndian(buffer, tu16);
+                if (LittleEndian) BinaryPrimitives.WriteUInt16LittleEndian(buffer, t16);
+                else BinaryPrimitives.WriteUInt16BigEndian(buffer, t16);
                 await BaseStream.WriteAsync(buffer, cancellationToken);
             }
-            else if (data is string tu16a)
+            else if (data is string t16a)
             {
-                byte[] buffer = Encoding.Default.GetBytes(tu16a);
+                byte[] buffer = Encoding.Default.GetBytes(t16a);
                 await writeLengthAsync(buffer.LongLength);
                 await BaseStream.WriteAsync(buffer, cancellationToken);
             }
