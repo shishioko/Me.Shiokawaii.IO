@@ -2,15 +2,14 @@ using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Me.Shiokawaii.IO
 {
-    public class BinaryStream
+    public class BinaryStream : IDisposable, IAsyncDisposable
     {
-        public bool AutoClose { get; init; } = false;
+        public bool AutoClose { get; init; } = true;
         public bool LittleEndian { get; init; } = false;
         private readonly Stream BaseStream;
         private bool Disposed = false;
@@ -587,5 +586,20 @@ namespace Me.Shiokawaii.IO
             WriteU8A(data.ToByteArray(!BitConverter.IsLittleEndian));
         }
         #endregion
+
+        public void Dispose()
+        {
+            //todo: ensure sync
+            if (Disposed) return;
+            Disposed = true;
+            if (AutoClose) BaseStream.Dispose();
+        }
+        public async ValueTask DisposeAsync()
+        {
+            //todo: ensure sync
+            if (Disposed) return;
+            Disposed = true;
+            if (AutoClose) await BaseStream.DisposeAsync();
+        }
     }
 }
